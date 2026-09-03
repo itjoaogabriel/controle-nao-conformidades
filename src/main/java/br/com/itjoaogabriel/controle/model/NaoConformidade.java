@@ -11,8 +11,9 @@ public class NaoConformidade {
     private String setorResponsavel;
     private LocalDateTime dataRegistro;
     private StatusNaoConformidade status;
+    private Inspetor inspetor;
 
-    public NaoConformidade(String codigoPainel, String componente, String descricao, String setorResponsavel) {
+    public NaoConformidade(String codigoPainel, String componente, String descricao, String setorResponsavel, Inspetor inspetor) {
         if (codigoPainel == null || codigoPainel.isBlank()) {
             throw new IllegalArgumentException("Informe o código do painel");
         }
@@ -25,12 +26,16 @@ public class NaoConformidade {
         if (setorResponsavel == null || setorResponsavel.isBlank()) {
             throw new IllegalArgumentException("Informe o setor responsável");
         }
+        if (inspetor == null) {
+            throw new IllegalArgumentException("Informe o inspetor");
+        }
         this.codigoPainel = codigoPainel;
         this.componente = componente;
         this.descricao = descricao;
         this.setorResponsavel = setorResponsavel;
         this.status = StatusNaoConformidade.ABERTA;
         this.dataRegistro = LocalDateTime.now();
+        this.inspetor = inspetor;
     }
 
     public void iniciarTratamento() {
@@ -75,4 +80,5 @@ public class NaoConformidade {
     public String getSetorResponsavel() { return setorResponsavel; }
     public LocalDateTime getDataRegistro() { return this.dataRegistro; }
     public StatusNaoConformidade getStatus() { return this.status; }
+    public Inspetor getInspetor() { return this.inspetor; }
 }
