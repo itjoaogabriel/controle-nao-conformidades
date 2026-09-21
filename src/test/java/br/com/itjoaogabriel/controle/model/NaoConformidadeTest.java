@@ -7,17 +7,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class NaoConformidadeTest {
 
-    @Test
-    void deveIniciarComStatusAberta() {
-        Inspetor inspetor = new Inspetor("João");
-
-        NaoConformidade naoConformidade = new NaoConformidade(
+    private NaoConformidade criarNaoConformidade() {
+        return new NaoConformidade(
                 "PL-01",
                 "Interruptor",
                 "Liga/desliga danificado",
-                "Montagem",
-                inspetor
+                new Inspetor("João"),
+                new Setor("Montagem")
         );
+    }
+
+    @Test
+    void deveIniciarComStatusAberta() {
+        NaoConformidade naoConformidade = criarNaoConformidade();
 
         assertEquals(
                 StatusNaoConformidade.ABERTA,
@@ -26,16 +28,8 @@ class NaoConformidadeTest {
     }
 
     @Test
-    void deveIniciarTratamentoQuandoStatusEstiverAberta() {
-        Inspetor inspetor = new Inspetor("João");
-
-        NaoConformidade naoConformidade = new NaoConformidade(
-                "PL-01",
-                "Interruptor",
-                "Liga/desliga danificado",
-                "Montagem",
-                inspetor
-        );
+    void deveIniciarTratamentoQuandoEstiverAberta() {
+        NaoConformidade naoConformidade = criarNaoConformidade();
 
         naoConformidade.iniciarTratamento();
 
@@ -47,15 +41,7 @@ class NaoConformidadeTest {
 
     @Test
     void deveImpedirIniciarTratamentoDuasVezes() {
-        Inspetor inspetor = new Inspetor("João");
-
-        NaoConformidade naoConformidade = new NaoConformidade(
-                "PL-01",
-                "Interruptor",
-                "Liga/desliga danificado",
-                "Montagem",
-                inspetor
-        );
+        NaoConformidade naoConformidade = criarNaoConformidade();
 
         naoConformidade.iniciarTratamento();
 
@@ -67,15 +53,7 @@ class NaoConformidadeTest {
 
     @Test
     void deveEncerrarAposFluxoCompleto() {
-        Inspetor inspetor = new Inspetor("João");
-
-        NaoConformidade naoConformidade = new NaoConformidade(
-                "PL-01",
-                "Interruptor",
-                "Liga/desliga danificado",
-                "Montagem",
-                inspetor
-        );
+        NaoConformidade naoConformidade = criarNaoConformidade();
 
         naoConformidade.iniciarTratamento();
         naoConformidade.enviarParaReinspecao();
@@ -88,16 +66,8 @@ class NaoConformidadeTest {
     }
 
     @Test
-    void deveVoltarParaEmTratamentoQuandoReinspecaoForReprovada() {
-        Inspetor inspetor = new Inspetor("João");
-
-        NaoConformidade naoConformidade = new NaoConformidade(
-                "PL-01",
-                "Interruptor",
-                "Liga/desliga danificado",
-                "Montagem",
-                inspetor
-        );
+    void deveVoltarQuandoReinspecaoForReprovada() {
+        NaoConformidade naoConformidade = criarNaoConformidade();
 
         naoConformidade.iniciarTratamento();
         naoConformidade.enviarParaReinspecao();
@@ -111,15 +81,7 @@ class NaoConformidadeTest {
 
     @Test
     void deveImpedirEncerramentoForaDaReinspecao() {
-        Inspetor inspetor = new Inspetor("João");
-
-        NaoConformidade naoConformidade = new NaoConformidade(
-                "PL-01",
-                "Interruptor",
-                "Liga/desliga danificado",
-                "Montagem",
-                inspetor
-        );
+        NaoConformidade naoConformidade = criarNaoConformidade();
 
         assertThrows(
                 IllegalStateException.class,
@@ -129,30 +91,41 @@ class NaoConformidadeTest {
 
     @Test
     void deveRejeitarCodigoPainelEmBranco() {
-        Inspetor inspetor = new Inspetor("João");
-
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new NaoConformidade(
                         "",
                         "Interruptor",
                         "Liga/desliga danificado",
-                        "Montagem",
-                        inspetor
+                        new Inspetor("João"),
+                        new Setor("Montagem")
                 )
         );
     }
 
     @Test
     void deveRejeitarInspetorNulo() {
-
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new NaoConformidade(
                         "PL-01",
                         "Interruptor",
                         "Liga/desliga danificado",
-                        "Montagem",
+                        null,
+                        new Setor("Montagem")
+                )
+        );
+    }
+
+    @Test
+    void deveRejeitarSetorNulo() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new NaoConformidade(
+                        "PL-01",
+                        "Interruptor",
+                        "Liga/desliga danificado",
+                        new Inspetor("João"),
                         null
                 )
         );

@@ -4,38 +4,126 @@ import java.time.LocalDateTime;
 
 public class NaoConformidade {
 
-    private Long id;
-    private String codigoPainel;
-    private String componente;
-    private String descricao;
-    private String setorResponsavel;
-    private LocalDateTime dataRegistro;
+    private final Long id;
+    private final String codigoPainel;
+    private final String componente;
+    private final String descricao;
+    private final LocalDateTime dataRegistro;
     private StatusNaoConformidade status;
-    private Inspetor inspetor;
+    private final Inspetor inspetor;
+    private final Setor setorOrigem;
 
-    public NaoConformidade(String codigoPainel, String componente, String descricao, String setorResponsavel, Inspetor inspetor) {
-        if (codigoPainel == null || codigoPainel.isBlank()) {
-            throw new IllegalArgumentException("Informe o código do painel");
+    public NaoConformidade(
+            String codigoPainel,
+            String componente,
+            String descricao,
+            Inspetor inspetor,
+            Setor setorOrigem
+    ) {
+        this(
+                null,
+                codigoPainel,
+                componente,
+                descricao,
+                LocalDateTime.now(),
+                StatusNaoConformidade.ABERTA,
+                inspetor,
+                setorOrigem
+        );
+    }
+
+    private NaoConformidade(
+            Long id,
+            String codigoPainel,
+            String componente,
+            String descricao,
+            LocalDateTime dataRegistro,
+            StatusNaoConformidade status,
+            Inspetor inspetor,
+            Setor setorOrigem
+    ) {
+        if (id != null && id <= 0) {
+            throw new IllegalArgumentException("O ID da não conformidade deve ser positivo");
         }
-        if (componente == null || componente.isBlank()) {
-            throw new IllegalArgumentException("Informe qual é o componente");
+
+        if (dataRegistro == null) {
+            throw new IllegalArgumentException("Informe a data de registro");
         }
-        if (descricao == null || descricao.isBlank()) {
-            throw new IllegalArgumentException("Escreva a descrição");
+
+        if (status == null) {
+            throw new IllegalArgumentException("Informe o status");
         }
-        if (setorResponsavel == null || setorResponsavel.isBlank()) {
-            throw new IllegalArgumentException("Informe o setor responsável");
-        }
+
         if (inspetor == null) {
             throw new IllegalArgumentException("Informe o inspetor");
         }
-        this.codigoPainel = codigoPainel;
-        this.componente = componente;
-        this.descricao = descricao;
-        this.setorResponsavel = setorResponsavel;
-        this.status = StatusNaoConformidade.ABERTA;
-        this.dataRegistro = LocalDateTime.now();
+
+        if (setorOrigem == null) {
+            throw new IllegalArgumentException("Informe o setor de origem");
+        }
+
+        this.id = id;
+        this.codigoPainel = validarTexto(
+                codigoPainel,
+                "código do painel",
+                50
+        );
+        this.componente = validarTexto(
+                componente,
+                "componente",
+                100
+        );
+        this.descricao = validarTexto(
+                descricao,
+                "descrição",
+                null
+        );
+        this.dataRegistro = dataRegistro;
+        this.status = status;
         this.inspetor = inspetor;
+        this.setorOrigem = setorOrigem;
+    }
+
+    public static NaoConformidade restaurar(
+            Long id,
+            String codigoPainel,
+            String componente,
+            String descricao,
+            LocalDateTime dataRegistro,
+            StatusNaoConformidade status,
+            Inspetor inspetor,
+            Setor setorOrigem
+    ) {
+        if (id == null) {
+            throw new IllegalArgumentException("Informe o ID da não conformidade");
+        }
+
+        return new NaoConformidade(
+                id,
+                codigoPainel,
+                componente,
+                descricao,
+                dataRegistro,
+                status,
+                inspetor,
+                setorOrigem
+        );
+    }
+
+    private static String validarTexto(String valor, String campo, Integer tamanhoMaximo) {
+        if (valor == null || valor.isBlank()) {
+            throw new IllegalArgumentException("Informe " + campo);
+        }
+
+        String valorTratado = valor.trim();
+
+        if (tamanhoMaximo != null && valorTratado.length() > tamanhoMaximo) {
+            throw new IllegalArgumentException(
+                    "O campo " + campo + " deve ter no máximo " + tamanhoMaximo + " caracteres"
+            );
+        }
+
+        return valorTratado;
     }
 
     public void iniciarTratamento() {
@@ -44,6 +132,7 @@ public class NaoConformidade {
                     "Apenas uma não conformidade aberta pode entrar em tratamento"
             );
         }
+
         this.status = StatusNaoConformidade.EM_TRATAMENTO;
     }
 
@@ -53,16 +142,8 @@ public class NaoConformidade {
                     "Apenas uma não conformidade em tratamento pode entrar em reinspeção"
             );
         }
-        this.status = StatusNaoConformidade.AGUARDANDO_REINSPECAO;
-    }
 
-    public void encerrar() {
-        if (this.status != StatusNaoConformidade.AGUARDANDO_REINSPECAO) {
-            throw new IllegalStateException(
-                    "Apenas uma não conformidade aguardando reinspeção pode ser encerrada"
-            );
-        }
-        this.status = StatusNaoConformidade.ENCERRADA;
+        this.status = StatusNaoConformidade.AGUARDANDO_REINSPECAO;
     }
 
     public void reprovarReinspecao() {
@@ -71,14 +152,26 @@ public class NaoConformidade {
                     "A reinspeção só pode ser reprovada quando a não conformidade estiver aguardando reinspeção"
             );
         }
+
         this.status = StatusNaoConformidade.EM_TRATAMENTO;
     }
 
+    public void encerrar() {
+        if (this.status != StatusNaoConformidade.AGUARDANDO_REINSPECAO) {
+            throw new IllegalStateException(
+                    "Apenas uma não conformidade aguardando reinspeção pode ser encerrada"
+            );
+        }
+
+        this.status = StatusNaoConformidade.ENCERRADA;
+    }
+
+    public Long getId() { return id; }
     public String getCodigoPainel() { return codigoPainel; }
-    public String getComponente() { return componente; }
+    public String getComponente() { return componente;}
     public String getDescricao() { return descricao; }
-    public String getSetorResponsavel() { return setorResponsavel; }
-    public LocalDateTime getDataRegistro() { return this.dataRegistro; }
-    public StatusNaoConformidade getStatus() { return this.status; }
-    public Inspetor getInspetor() { return this.inspetor; }
+    public LocalDateTime getDataRegistro() { return dataRegistro; }
+    public StatusNaoConformidade getStatus() { return status; }
+    public Inspetor getInspetor() { return inspetor; }
+    public Setor getSetorOrigem() { return setorOrigem; }
 }
