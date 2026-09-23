@@ -17,3 +17,9 @@
 - **O que fiz:** criei o modelo `Setor`, adaptei `Inspetor` e `NaoConformidade` para representar objetos novos e registros recuperados do banco e adicionei testes para os três modelos.
 - **Onde tive dificuldade:** tive contato pela primeira vez com atributos `final`, construtor privado e métodos estáticos de fábrica para reconstruir objetos persistidos.
 - **O que aprendi:** entendi que um objeto novo pode possuir ID nulo, que o PostgreSQL fornecerá o ID após a persistência e que `final` impede a substituição do valor de um atributo depois da construção do objeto.
+
+## 23/09/2026
+
+- **O que fiz:** criei o modelo `HistoricoStatus`, adicionei testes para suas validações e atualizei o `README.md` para representar o estado atual do projeto.
+- **Onde tive dificuldade:** precisei diferenciar a criação de um histórico novo da restauração de um registro que já possui ID e data definidos pelo banco.
+- **O que aprendi:** entendi que o histórico representa uma transição já ocorrida, que seus dados não devem ser alterados depois da criação e que as validações do Java complementam as constraints do PostgreSQL.
